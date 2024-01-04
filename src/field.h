@@ -22,6 +22,8 @@ struct Field field_new(int width, int height, int rotation);
 
 void field_free(struct Field *field);
 
+void field_fill(struct Field *field, int chance);
+
 void field_step(struct Field *field);
 
 #endif // !FIELD_H
