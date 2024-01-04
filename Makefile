@@ -18,7 +18,7 @@ $(BINDIR)/%.o : $(SRCDIR)/%.c
 	@$(CC) $(FLAGS) -c $< -o $@
 
 test: $(BINDIR)/$(TARGET)
-	$(BINDIR)/$(TARGET) 20 20 10 E round
+	$(BINDIR)/$(TARGET) 20 20 10 e round
 
 .PHONY: clean
 clean:
