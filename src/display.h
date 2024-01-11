@@ -6,8 +6,8 @@
 
 struct Field field_load(FILE *file_state);
 
-void field_display(struct Field *field, int iteration);
+void display_print(struct Field *field, int iteration);
 
-void field_save(struct Field *field, int iteration);
+void display_save(struct Field *field, int iteration, char *file_out);
 
 #endif // !DISPLAY_H

@@ -70,16 +70,17 @@ int main(int argc, char *argv[])
 		field = field_new(width, height, rotation);
 		field_fill(&field, black_fill);
 	} else {
-		// field = field_load(file_state);
+		field = field_load(file_state);
 		fclose(file_state);
 	}
 
-	for (int i = 0; iterations > i; i++) {
+	for (int i = 1; iterations >= i; i++) {
 		field_step(&field);
 		if (strlen(file_out)) {
+			display_save(&field, i, file_out);
 			
 		} else {
-			field_display(&field, i);
+			display_print(&field, i);
 		}
 	}
 
