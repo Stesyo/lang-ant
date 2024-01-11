@@ -1,13 +1,15 @@
 #ifndef FIELD_H
 #define FIELD_H
 
-static const int N = 1<<1;
-static const int E = 1<<2;
-static const int S = 1<<3;
-static const int W = 1<<4;
+// Possbile ant rotations
+static const int N = 1;
+static const int E = 2;
+static const int S = 3;
+static const int W = 4;
 
 struct Ant {
-	int position;
+	int x;
+	int y;
 	int rotation;
 };
 

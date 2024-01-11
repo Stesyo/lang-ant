@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
 		} else {
 			field_display(&field, i);
 		}
-
 	}
 
 	field_free(&field);
