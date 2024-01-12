@@ -3,7 +3,8 @@
 
 #include "field.h"
 
-struct Field field_new(int width, int height, int rotation) {
+struct Field field_new(int width, int height, int rotation)
+{
 	int **grid = malloc(height * sizeof(int *));
 	for (int i = 0; height > i; i++) {
 		grid[i] = calloc(width, sizeof(int));
@@ -15,7 +16,8 @@ struct Field field_new(int width, int height, int rotation) {
 	return field;
 }
 
-void field_fill(struct Field *field, int chance) {
+void field_fill(struct Field *field, int chance)
+{
 	srand(time(0));
 	for (int i = 0; field->width * field->height > i; i++) {
 		if (rand() % 100 < chance) {
@@ -24,14 +26,16 @@ void field_fill(struct Field *field, int chance) {
 	}
 }
 
-void field_free(struct Field *field) {
+void field_free(struct Field *field)
+{
 	for (int i = 0; field->height > i; i++) {
 		free(field->grid[i]);
 	}
 	free(field->grid);
 }
 
-void field_step(struct Field *field) {
+void field_step(struct Field *field)
+{
 	int x = field->ant.x;
 	int y = field->ant.y;
 
