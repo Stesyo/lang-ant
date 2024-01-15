@@ -27,6 +27,22 @@ void display_print(struct Field *field, int iteration)
 
 void display_save(struct Field *field, int iteration, char *file_out)
 {
+	char *filename = malloc((sizeof(file_out) + 12) * sizeof(char));
+	mkdir(file_out);
+	sprintf(filename,"%s/%s_%i.txt",file_out,file_out ,iteration);
+	FILE *file = fopen(filename,"w");
+	fprintf(file,"Iteration: %i\n", iteration);
+	for (int y = 0; field->height > y; y++) {
+		for (int x = 0; field->width > x; x++) {
+			if (x == field->ant.x && y == field->ant.y) {
+				fprintf(file,"A ");
+			}
+			else {
+				fprintf(file,"%i ", field->grid[y][x]);
+			}
+		}
+		fprintf(file, "\n");
+	}
 
 }
 // #include <stdio.h>
