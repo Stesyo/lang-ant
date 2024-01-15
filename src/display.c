@@ -6,7 +6,27 @@
 
 struct Field field_load(FILE *file_state)
 {
-	return field_new(0, 0, 1);
+	int aWidth, aHeight, aRotation;
+	int width, height;
+	
+	fscanf(file_state, "%i %i %i", &aWidth, &aHeight, &aRotation);
+	fscanf(file_state, "%i %i", &width, &height);
+
+	
+	int **grid = (int**)malloc(height * sizeof(int *));
+	for (int i = 0; i < aHeight; i++){
+        grid[i] = (int *)malloc(width * sizeof(int));
+    }
+	
+	for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++)
+                fscanf(file_state,"%d", &grid[i][j]);
+		}
+
+	struct Field field = {width, height, grid};
+	struct Ant ant = {aWidth, aHeight, aRotation};
+	field.ant = ant;
+	return field;
 }
 
 void display_print(struct Field *field, int iteration)
