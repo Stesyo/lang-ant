@@ -1,7 +1,5 @@
 #include <time.h>
 #include <stdlib.h>
-#include <stdio.h>
-
 #include "field.h"
 
 struct Field field_new(int width, int height, int rotation)
@@ -16,8 +14,6 @@ struct Field field_new(int width, int height, int rotation)
 
 	return field;
 }
-
-
 
 void field_fill(struct Field *field, int chance)
 {
