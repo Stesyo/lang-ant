@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <wchar.h>
 
 #include "field.h"
 #include "display.h"
@@ -93,8 +94,13 @@ int main(int argc, char *argv[])
 		fclose(file_state);
 	}
 
+
+	display_init(&field, iterations);
+	int updated_tile;
 	for (int i = 1; iterations >= i; i++) {
+		updated_tile = field.ant.y * field.width + field.ant.x;
 		field_step(&field);
+		display_update(&field, updated_tile);
 		if (strlen(file_out)) {
 			display_save(&field, i, file_out);
 			
@@ -103,6 +109,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	display_free();
 	field_free(&field);
 
 	return 0;

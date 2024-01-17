@@ -9,23 +9,27 @@
 #include "display.h"
 
 
-wchar_t *line_vertical = L"│";
-wchar_t *line_horizontal = L"─";
-wchar_t *line_down_right = L"┌";
-wchar_t *line_down_left = L"┐";
-wchar_t *line_up_right = L"└";
-wchar_t *line_up_left = L"┘";
-wchar_t *square_white = L" ";
-wchar_t *square_black = L"█";
-wchar_t *arrow_north_white = L"△";
-wchar_t *arrow_north_black = L"▲";
-wchar_t *arrow_east_white = L"▷";
-wchar_t *arrow_east_black = L"▶";
-wchar_t *arrow_south_white = L"▽";
-wchar_t *arrow_south_black = L"▼";
-wchar_t *arrow_west_white = L"◁";
-wchar_t *arrow_west_black = L"◀";
+wchar_t line_vertical = L'│';
+wchar_t line_horizontal = L'─';
+wchar_t line_down_right = L'┌';
+wchar_t line_down_left = L'┐';
+wchar_t line_up_right = L'└';
+wchar_t line_up_left = L'┘';
+wchar_t square_white = L' ';
+wchar_t square_black = L'█';
+wchar_t arrow_north_white = L'△';
+wchar_t arrow_north_black = L'▲';
+wchar_t arrow_east_white = L'▷';
+wchar_t arrow_east_black = L'▶';
+wchar_t arrow_south_white = L'▽';
+wchar_t arrow_south_black = L'▼';
+wchar_t arrow_west_white = L'◁';
+wchar_t arrow_west_black = L'◀';
 
+wchar_t **display = NULL;
+int display_x = 0;
+int display_y = 0;
+int iter_digits = 0;
 
 struct Field field_load(FILE *file_state)
 {
@@ -50,117 +54,140 @@ struct Field field_load(FILE *file_state)
 	return field;
 }
 
-void field_write(struct Field *field, FILE *stream)
-{
-	fwprintf(stream, L"%ls", line_down_right);
-	for(int i = 0; field->height > i; i++)
-		fwprintf(stream, L"%ls", line_horizontal);
-	fwprintf(stream, L"%ls\n", line_down_left);
-	for (int y = 0; field->height > y; y++) {
-		fwprintf(stream, L"%ls", line_vertical);
-
-		for (int x = 0; field->width > x; x++) {
-			if (x == field->ant.x && y == field->ant.y) {
-				if(field->grid[y][x] == 0) {
-					switch (field->ant.rotation)
-					{
-					case 1:
-						fwprintf(stream, L"%ls", arrow_north_white);
-						break;
-					case 2:
-						fwprintf(stream, L"%ls", arrow_east_white);
-						break;
-					case 3:
-						fwprintf(stream, L"%ls", arrow_south_white);
-						break;
-					case 4:
-						fwprintf(stream, L"%ls", arrow_west_white);
-						break;
-					default:
-						break;
-					}
-				} else {
-					switch (field->ant.rotation)
-					{
-					case 1:
-						fwprintf(stream, L"%ls", arrow_north_black);
-						break;
-					case 2:
-						fwprintf(stream, L"%ls", arrow_east_black);
-						break;
-					case 3:
-						fwprintf(stream, L"%ls", arrow_south_black);
-						break;
-					case 4:
-						fwprintf(stream, L"%ls", arrow_west_black);
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-			else {
-				if(field->grid[y][x] == 0)
-					fwprintf(stream, L"%ls", square_white);
-				else 
-					fwprintf(stream, L"%ls", square_black);
-			}
-		}
-		fwprintf(stream, L"%ls\n", line_vertical);
+int get_digits(int value) {
+	if (value == 0) {
+		return 1;
 	}
-	fwprintf(stream, L"%ls", line_up_right);
-	for(int i = 0; field->height > i; i++)
-		fwprintf(stream, L"%ls", line_horizontal);
-	fwprintf(stream, L"%ls\n", line_up_left);
+	int n = 0;
+	while (value != 0) { 
+		value = value / 10; 
+		n++; 
+	} 
+	return n;
+}
+
+wchar_t get_char(struct Field *field, int x, int y) 
+{
+	if (x == field->ant.x && y == field->ant.y && field->grid[y][x] == 0) {
+		switch (field->ant.rotation)
+		{
+		case 1:
+			return(arrow_north_white);
+			break;
+		case 2:
+			return(arrow_east_white);
+			break;
+		case 3:
+			return(arrow_south_white);
+			break;
+		case 4:
+			return(arrow_west_white);
+			break;
+		default:
+			printf("Invalid ant rotation\n");
+			exit(1);
+		}
+	} else if (x == field->ant.x && y == field->ant.y && field->grid[y][x] == 1) {
+		switch (field->ant.rotation)
+		{
+		case 1:
+			return(arrow_north_black);
+			break;
+		case 2:
+			return(arrow_east_black);
+			break;
+		case 3:
+			return(arrow_south_black);
+			break;
+		case 4:
+			return(arrow_west_black);
+			break;
+		default:
+			printf("Invalid ant rotation\n");
+			exit(1);
+		}
+
+	} else if (field->grid[y][x] == 0) {
+		return(square_white);
+	} else if (field->grid[y][x] == 1) {
+		return(square_black);
+	}
+	printf("Invalid value in grid\n");
+	exit(1);
+}
+
+void display_init(struct Field *field, int iterations)
+{
+	setlocale(LC_ALL, "C.UTF-8");
+
+	iter_digits = get_digits(iterations);
+	display_x = field->width;
+	display_y = field->height;
+	display = malloc((display_y + 2) * sizeof(wchar_t *));
+	for (int i = 0 ; display_y + 2 > i; i++) {
+		display[i] = malloc((display_x + 2) * sizeof(wchar_t));
+	}
+
+	display[0][0] = line_down_right;
+	display[0][display_x + 1] = line_down_left;
+	display[display_y + 1][0] = line_up_right;
+	display[display_y + 1][display_x + 1] = line_up_left;
+
+	for(int i = 0; display_x > i; i++) {
+		display[0][i + 1] = line_horizontal;
+		display[display_y + 1][i + 1] = line_horizontal;
+	}
+
+	for (int y = 1; field->height + 1 > y; y++) {
+		display[y][0] = line_vertical;
+		display[y][display_x + 1] = line_vertical;
+
+		for (int x = 1; field->width + 1 > x; x++) {
+			display[y][x] = get_char(field, x - 1, y - 1);
+		}
+	}
+}
+
+void display_free(void)
+{
+	for (int i = 0; display_y > i; i++) {
+		free(display[i]);
+	}
+	free(display);
+}
+
+void display_update(struct Field *field, int tile) {
+	int tile_x = tile % field->width;
+	int tile_y = tile / field->width;
+	
+	display[tile_y + 1][tile_x + 1] = get_char(field, tile_x, tile_y);
+	display[field->ant.y + 1][field->ant.x + 1] = get_char(field, field->ant.x, field->ant.y);
 }
 
 void display_print(struct Field *field, int iteration)
 {
-	setlocale(LC_ALL, "C.UTF-8");
 	wprintf(L"Iteration: %i\n", iteration);
-	field_write(field, stdout);
+	for (int y = 0; field->height + 2 > y; y++) {
+		wprintf(L"%ls\n", display[y]);
+	}
 }
 
 void display_save(struct Field *field, int iteration, char *file_out)
 {
-	char *filename = malloc((sizeof(file_out) + 12) * sizeof(char));
+	int name_len = 2 * strlen(file_out) + iter_digits + 7;
+	char *file_name = malloc(name_len * sizeof(char));
+	int digits = get_digits(iteration);
+
+
+	sprintf(file_name, "%s/%s_", file_out, file_out);
+	sprintf(file_name + (2 * strlen(file_out) + 2 + iter_digits - digits), "%i.txt", iteration);
+	for (int i = 0; iter_digits - digits > i; i++)
+		file_name[i + 2 * strlen(file_out) + 2] = '0';
+
 	mkdir(file_out, 0755);
-	setlocale(LC_ALL, "C.UTF-8");
-	sprintf(filename, "%s/%s_%i.txt",file_out,file_out, iteration);
-	FILE *file = fopen(filename, "w");
-	field_write(field, file);
+	FILE *file = fopen(file_name, "w");
+	for (int y = 0; field->height + 2 > y; y++) {
+		fwprintf(file, L"%ls\n", display[y]);
+	}
 	fclose(file);
 }
-// #include <stdio.h>
-// #include <wchar.h>
-// #include <locale.h>
-// // LINE_VERTICAL:│
-// // LINE_HORIZONTAL:─
-// // LINE_DOWN_RIGHT:┌
-// // LINE_DOWN_LEFT:┐
-// // LINE_UP_RIGHT:└
-// // LINE_UP_LEFT:┘
-// // SQUARE_WHITE: 
-// // SQUARE_BLACK:█
-// // ARROW_NORTH_WHITE:△
-// // ARROW_NORTH_BLACK:▲
-// // ARROW_EAST_WHITE:▷
-// // ARROW_EAST_BLACK:▶
-// // ARROW_SOUTH_WHITE:▽
-// // ARROW_SOUTH_BLACK:▼
-// // ARROW_WEST_WHITE:◁
-// // ARROW_WEST_BLACK:◀
-// int main() {
-//     
-//     printf("▶ \n");
-//     
-//     char *c = "▶";
-//     printf("%s %d \n", c, strlen(c));
-//     
-//     // setlocale(LC_ALL, "");
-//     setlocale(LC_ALL, "C.UTF-8");
-//     wchar_t *wc = L"▶";
-//     printf("%ls %d \n", wc, wcslen(wc));
-//     return 0;
-// }

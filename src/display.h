@@ -6,6 +6,12 @@
 
 struct Field field_load(FILE *file_state);
 
+void display_init(struct Field *field, int iterations);
+
+void display_free(void);
+
+void display_update(struct Field *field, int tile);
+
 void display_print(struct Field *field, int iteration);
 
 void display_save(struct Field *field, int iteration, char *file_out);
