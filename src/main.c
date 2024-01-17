@@ -6,8 +6,21 @@
 #include "field.h"
 #include "display.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], const char *optstring)
 {
+	if (argc == 1){
+		printf("Program wywolac mozna z następującymi argumentami:\n");
+		printf("	Wymagane:\n");
+		printf("		-w szerokosc planszy\n");
+		printf("		-h wysokosc planszy\n");
+		printf("		-i ilosc iteracji automatu\n");
+		printf("		-r kierunek mrowki\n");
+		printf("	Opcjpnalne:\n");
+		printf("		-o naglowek pliku wyjsciowego\n");
+		printf("		-b zapelnienie planszy ciemnymi polami (w %)\n");
+		printf("		-s plik wejsciowy\n");
+		return 1;
+	}
 	if (argc < 5) {
 		printf("Za mało argumentów: %i/4\n", argc - 1);
 		printf("Wymagane argumenty:\n");
@@ -17,20 +30,32 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	int width = atoi(argv[1]);
-	int height = atoi(argv[2]);
-	int iterations = atoi(argv[3]);
+	int width = 0; 
+	int height = 0; 
+	int iterations = 0;
+	char direction;
 
 	char *file_out = "";
 	FILE *file_state = NULL;
 	int black_fill = 0;
 
-	if (argc > 5 && argv[5][0] != '-')
-		file_out = argv[5];
 
 	int c;
-	while ((c = getopt(argc, argv, "b:s:")) != -1) {
+	while ((c = getopt(argc, argv, "w:h:i:r:o:b:s:")) != -1) {
 		switch (c) {
+		case 'w':
+			width = atoi(optarg);
+			break;
+		case 'h':
+			height = atoi(optarg);
+			break;
+		case 'i':
+			iterations = atoi(optarg);
+		case 'r':
+			direction = optarg[0];
+			break;
+		case 'o':
+			file_out =optarg;
 		case 's':
 			file_state = fopen(optarg, "r");
 			break;
@@ -44,7 +69,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
-
+	
 	struct Field field;
 	if (file_state == NULL) {
 		if (2 > width || 2 > height) {
@@ -52,7 +77,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		int rotation;
-		switch (argv[4][0]) {
+		switch (direction) {
 		case 'N':
 			rotation = N;
 			break;
@@ -65,6 +90,9 @@ int main(int argc, char *argv[])
 		case 'W':
 			rotation = W;
 			break;
+		default:
+			printf("Niepoprawny kierunek, mrówka przyjmuje keirunki: (N,E,W,S)");
+			return 1;
 		}
 
 		field = field_new(width, height, rotation);
