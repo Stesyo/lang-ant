@@ -8,37 +8,14 @@
 
 int main(int argc, char *argv[])
 {
-	if (argc == 1){
-		printf("Program wywolac mozna z następującymi argumentami:\n");
-		printf("	Wymagane:\n");
-		printf("		-w szerokosc planszy\n");
-		printf("		-h wysokosc planszy\n");
-		printf("		-i ilosc iteracji automatu\n");
-		printf("		-r kierunek mrowki\n");
-		printf("	Opcjpnalne:\n");
-		printf("		-o naglowek pliku wyjsciowego\n");
-		printf("		-b zapelnienie planszy ciemnymi polami (w %)\n");
-		printf("		-s plik wejsciowy\n");
-		return 1;
-	}
-	if (argc < 5) {
-		printf("Za mało argumentów: %i/4\n", argc - 1);
-		printf("Wymagane argumenty:\n");
-		printf("\t-szerokośc\n\t-wysokośc\n");
-		printf("\t-ilość iteracji\n\t-kierunek mrówki (N|E|S|W)\n");
-		printf("Opcjonalne argumenty:\n");
-		return 1;
-	}
-
 	int width = 0; 
 	int height = 0; 
 	int iterations = 0;
-	char direction;
+	int rotation = 0;
 
 	char *file_out = "";
 	FILE *file_state = NULL;
 	int black_fill = 0;
-
 
 	int c;
 	while ((c = getopt(argc, argv, "w:h:i:r:o:b:s:")) != -1) {
@@ -51,11 +28,29 @@ int main(int argc, char *argv[])
 			break;
 		case 'i':
 			iterations = atoi(optarg);
+			break;
 		case 'r':
-			direction = optarg[0];
+			switch (optarg[0]) {
+			case 'N':
+				rotation = N;
+				break;
+			case 'E':
+				rotation = E;
+				break;
+			case 'S':
+				rotation = S;
+				break;
+			case 'W':
+				rotation = W;
+				break;
+			default:
+				printf("Niepoprawny kierunek, mrówka przyjmuje kierunki: (N,E,S,W)\n");
+				return 1;
+			}
 			break;
 		case 'o':
-			file_out =optarg;
+			file_out = optarg;
+			break;
 		case 's':
 			file_state = fopen(optarg, "r");
 			break;
@@ -70,28 +65,24 @@ int main(int argc, char *argv[])
 		}
 	}
 	
+	if (width == 0 || height == 0 || iterations == 0 || rotation == 0){
+		printf("Program wywolac mozna z następującymi argumentami:\n");
+		printf("\tWymagane:\n");
+		printf("\t\t-w szerokosc planszy\n");
+		printf("\t\t-h wysokosc planszy\n");
+		printf("\t\t-i ilosc iteracji automatu\n");
+		printf("\t\t-r kierunek mrowki (N|E|S|W)\n");
+		printf("\tOpcjpnalne:\n");
+		printf("\t\t-o naglowek pliku wyjsciowego\n");
+		printf("\t\t-b zapelnienie planszy ciemnymi polami (w %%)\n");
+		printf("\t\t-s plik wejsciowy\n");
+		return 1;
+	}
+
 	struct Field field;
 	if (file_state == NULL) {
 		if (2 > width || 2 > height) {
 			printf("Plansza jest za mała: %ix%i (min 2x2)\n", width, height);
-			return 1;
-		}
-		int rotation;
-		switch (direction) {
-		case 'N':
-			rotation = N;
-			break;
-		case 'E':
-			rotation = E;
-			break;
-		case 'S':
-			rotation = S;
-			break;
-		case 'W':
-			rotation = W;
-			break;
-		default:
-			printf("Niepoprawny kierunek, mrówka przyjmuje keirunki: (N,E,W,S)");
 			return 1;
 		}
 

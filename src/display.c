@@ -3,6 +3,7 @@
 #include <string.h>
 #include <wchar.h>
 #include <locale.h>
+#include <sys/stat.h>
 
 #include "field.h"
 #include "display.h"
@@ -33,7 +34,6 @@ struct Field field_load(FILE *file_state)
 	fscanf(file_state, "%i %i %i", &aWidth, &aHeight, &aRotation);
 	fscanf(file_state, "%i %i", &width, &height);
 
-	
 	int **grid = malloc(height * sizeof(int *));
 	for (int i = 0; i < aHeight; i++) {
 		grid[i] = malloc(width * sizeof(int));
@@ -118,7 +118,7 @@ void display_print(struct Field *field, int iteration)
 void display_save(struct Field *field, int iteration, char *file_out)
 {
 	char *filename = malloc((sizeof(file_out) + 12) * sizeof(char));
-	mkdir(file_out);
+	mkdir(file_out, 0755);
 	setlocale(LC_ALL, "C.UTF-8");
 	sprintf(filename,"%s/%s_%i.txt",file_out,file_out ,iteration);
 	FILE *file = fopen(filename,"w");
