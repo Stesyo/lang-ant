@@ -39,10 +39,10 @@ struct Field field_load(FILE *file_state)
 		grid[i] = malloc(width * sizeof(int));
 	}
 	
-	for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++)
+	for(int i = 0; i < height; i++) {
+		for(int j = 0; j < width; j++)
                 fscanf(file_state,"%d", &grid[i][j]);
-		}
+	}
 
 	struct Field field = {width, height, grid};
 	struct Ant ant = {aWidth, aHeight, aRotation};
@@ -50,52 +50,49 @@ struct Field field_load(FILE *file_state)
 	return field;
 }
 
-void display_print(struct Field *field, int iteration)
+void field_write(struct Field *field, FILE *stream)
 {
-	setlocale(LC_ALL, "C.UTF-8");
-	printf("Iteration: %i\n", iteration);
-	wprintf(L"%ls", line_down_right);
-	for(int i = 0; field->height > i; i++) wprintf(L"%ls", line_horizontal);
-	wprintf(L"%ls\n", line_down_left);
+	fwprintf(stream, L"%ls", line_down_right);
+	for(int i = 0; field->height > i; i++)
+		fwprintf(stream, L"%ls", line_horizontal);
+	fwprintf(stream, L"%ls\n", line_down_left);
 	for (int y = 0; field->height > y; y++) {
-		wprintf(L"%ls", line_vertical);
+		fwprintf(stream, L"%ls", line_vertical);
 
 		for (int x = 0; field->width > x; x++) {
 			if (x == field->ant.x && y == field->ant.y) {
-				if(field->grid[y][x] == 0){
+				if(field->grid[y][x] == 0) {
 					switch (field->ant.rotation)
 					{
 					case 1:
-						wprintf(L"%ls", arrow_north_white);
+						fwprintf(stream, L"%ls", arrow_north_white);
 						break;
 					case 2:
-						wprintf(L"%ls", arrow_east_white);
+						fwprintf(stream, L"%ls", arrow_east_white);
 						break;
 					case 3:
-						wprintf(L"%ls", arrow_south_white);
+						fwprintf(stream, L"%ls", arrow_south_white);
 						break;
 					case 4:
-						wprintf(L"%ls", arrow_west_white);
+						fwprintf(stream, L"%ls", arrow_west_white);
 						break;
 					default:
 						break;
 					}
-				}
-
-				else{
+				} else {
 					switch (field->ant.rotation)
 					{
 					case 1:
-						wprintf(L"%ls", arrow_north_black);
+						fwprintf(stream, L"%ls", arrow_north_black);
 						break;
 					case 2:
-						wprintf(L"%ls", arrow_east_black);
+						fwprintf(stream, L"%ls", arrow_east_black);
 						break;
 					case 3:
-						wprintf(L"%ls", arrow_south_black);
+						fwprintf(stream, L"%ls", arrow_south_black);
 						break;
 					case 4:
-						wprintf(L"%ls", arrow_west_black);
+						fwprintf(stream, L"%ls", arrow_west_black);
 						break;
 					default:
 						break;
@@ -104,15 +101,25 @@ void display_print(struct Field *field, int iteration)
 			}
 
 			else {
-				if(field->grid[y][x] == 0) wprintf(L"%ls", square_white);
-				else wprintf(L"%ls", square_black);
+				if(field->grid[y][x] == 0)
+					fwprintf(stream, L"%ls", square_white);
+				else 
+					fwprintf(stream, L"%ls", square_black);
 			}
 		}
-		wprintf(L"%ls\n", line_vertical);
+		fwprintf(stream, L"%ls\n", line_vertical);
 	}
-	wprintf(L"%ls", line_up_right);
-	for(int i = 0; field->height > i; i++) wprintf(L"%ls", line_horizontal);
-	wprintf(L"%ls\n", line_up_left);
+	fwprintf(stream, L"%ls", line_up_right);
+	for(int i = 0; field->height > i; i++)
+		fwprintf(stream, L"%ls", line_horizontal);
+	fwprintf(stream, L"%ls\n", line_up_left);
+}
+
+void display_print(struct Field *field, int iteration)
+{
+	setlocale(LC_ALL, "C.UTF-8");
+	wprintf(L"Iteration: %i\n", iteration);
+	field_write(field, stdout);
 }
 
 void display_save(struct Field *field, int iteration, char *file_out)
@@ -121,65 +128,9 @@ void display_save(struct Field *field, int iteration, char *file_out)
 	mkdir(file_out, 0755);
 	setlocale(LC_ALL, "C.UTF-8");
 	sprintf(filename,"%s/%s_%i.txt",file_out,file_out ,iteration);
-	FILE *file = fopen(filename,"w");
-	fprintf(file,"Iteration: %i\n", iteration);
-	fwprintf(file,L"%ls", line_down_right);
-	for (int y = 0; field->height > y; y++) {
-		fwprintf(file,L"%ls", line_vertical);
-
-		for (int x = 0; field->width > x; x++) {
-			if (x == field->ant.x && y == field->ant.y) {
-				if(field->grid[y][x] == 0){
-					switch (field->ant.rotation)
-					{
-					case 1:
-						fwprintf(file,L"%ls", arrow_north_white);
-						break;
-					case 2:
-						fwprintf(file,L"%ls", arrow_east_white);
-						break;
-					case 3:
-						fwprintf(file,L"%ls", arrow_south_white);
-						break;
-					case 4:
-						fwprintf(file,L"%ls", arrow_west_white);
-						break;
-					default:
-						break;
-					}
-				}
-
-				else{
-					switch (field->ant.rotation)
-					{
-					case 1:
-						fwprintf(file,L"%ls", arrow_north_black);
-						break;
-					case 2:
-						fwprintf(file,L"%ls", arrow_east_black);
-						break;
-					case 3:
-						fwprintf(file,L"%ls", arrow_south_black);
-						break;
-					case 4:
-						fwprintf(file,L"%ls", arrow_west_black);
-						break;
-					default:
-						break;
-					}
-				}
-			}
-
-			else {
-				if(field->grid[y][x] == 0) fwprintf(file,L"%ls", square_white);
-				else fwprintf(file,L"%ls", square_black);
-			}
-		}
-		fwprintf(file,L"%ls\n", line_vertical);
-	}
-	fwprintf(file,L"%ls", line_up_right);
-	for(int i = 0; field->height > i; i++) fwprintf(file,L"%ls", line_horizontal);
-	fwprintf(file,L"%ls\n", line_up_left);
+	FILE *file = fopen(filename, "w");
+	fwprintf(file, L"Iteration: %i\n", iteration);
+	field_write(field, file);
 }
 // #include <stdio.h>
 // #include <wchar.h>
