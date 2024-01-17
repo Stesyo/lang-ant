@@ -6,7 +6,7 @@
 #include "field.h"
 #include "display.h"
 
-int main(int argc, char *argv[], const char *optstring)
+int main(int argc, char *argv[])
 {
 	if (argc == 1){
 		printf("Program wywolac mozna z następującymi argumentami:\n");
