@@ -35,7 +35,7 @@ struct Field field_load(FILE *file_state)
 	fscanf(file_state, "%i %i", &width, &height);
 
 	int **grid = malloc(height * sizeof(int *));
-	for (int i = 0; i < aHeight; i++) {
+	for (int i = 0; i < height; i++) {
 		grid[i] = malloc(width * sizeof(int));
 	}
 	
