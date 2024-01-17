@@ -127,10 +127,10 @@ void display_save(struct Field *field, int iteration, char *file_out)
 	char *filename = malloc((sizeof(file_out) + 12) * sizeof(char));
 	mkdir(file_out, 0755);
 	setlocale(LC_ALL, "C.UTF-8");
-	sprintf(filename,"%s/%s_%i.txt",file_out,file_out ,iteration);
+	sprintf(filename, "%s/%s_%i.txt",file_out,file_out, iteration);
 	FILE *file = fopen(filename, "w");
-	fwprintf(file, L"Iteration: %i\n", iteration);
 	field_write(field, file);
+	fclose(file);
 }
 // #include <stdio.h>
 // #include <wchar.h>
