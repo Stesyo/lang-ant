@@ -33,23 +33,116 @@ int iter_digits = 0;
 
 struct Field field_load(FILE *file_state)
 {
-	int aWidth, aHeight, aRotation;
-	int width, height;
-	fscanf(file_state, "%i %i %i", &aWidth, &aHeight, &aRotation);
-	fscanf(file_state, "%i %i", &width, &height);
+	setlocale(LC_ALL, "C.UTF-8");
 
+	int width = 0;
+	int height = -2;
+
+	wchar_t wc;
+	while ((wc = fgetwc(file_state)) != WEOF) {
+		if        (wc == line_horizontal 
+			|| wc == line_vertical
+			|| wc == line_down_right
+			|| wc == line_down_left
+			|| wc == line_up_right
+			|| wc == line_up_left
+		) {
+			continue;
+		}
+
+		if (wc == L'\n')
+			height += 1;
+		if (height == 0 && wc != L'\n')
+			width += 1;
+	}
+	rewind(file_state);
+
+	if (width == 0 || height == 0) {
+		wprintf(L"Grid too small\n");
+		exit(1);
+	}
+
+	struct Ant ant;
 	int **grid = malloc(height * sizeof(int *));
-	for (int i = 0; i < aHeight; i++) {
+	for (int i = 0; height > i; i++) {
 		grid[i] = malloc(width * sizeof(int));
 	}
-	
-	for(int i = 0; i < height; i++) {
-		for(int j = 0; j < width; j++)
-                fscanf(file_state,"%d", &grid[i][j]);
-	}
 
+	int x = -1;
+	int y = -1;
+	while ((wc = fgetwc(file_state)) != WEOF) {
+		switch (wc) {
+		case L'\n':
+			x = -1;
+			y += 1;
+			break;
+		case L' ':
+			grid[y][x] = 0;
+			x += 1;
+			break;
+		case L'█':
+			grid[y][x] = 1;
+			x += 1;
+			break;
+		case L'△':
+			grid[y][x] = 0;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = N;
+			x += 1;
+			break;
+		case L'▲':
+			grid[y][x] = 1;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = N;
+			x += 1;
+			break;
+		case L'▷':
+			grid[y][x] = 0;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = E;
+			x += 1;
+			break;
+		case L'▶':
+			grid[y][x] = 1;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = E;
+			x += 1;
+			break;
+		case L'▽':
+			grid[y][x] = 0;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = S;
+			x += 1;
+			break;
+		case L'▼':
+			grid[y][x] = 1;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = S;
+			x += 1;
+			break;
+		case L'◁':
+			grid[y][x] = 0;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = W;
+			x += 1;
+			break;
+		case L'◀':		
+			grid[y][x] = 1;
+			ant.x = x;
+			ant.y = y;
+			ant.rotation = W;
+			x += 1;
+			break;
+		}
+	}
 	struct Field field = {width, height, grid};
-	struct Ant ant = {aWidth, aHeight, aRotation};
 	field.ant = ant;
 	return field;
 }
@@ -112,7 +205,7 @@ wchar_t get_char(struct Field *field, int x, int y)
 	} else if (field->grid[y][x] == 1) {
 		return(square_black);
 	}
-	printf("Invalid value in grid\n");
+	printf("Invalid value in grid: [%ix%i]\n", x, y);
 	exit(1);
 }
 
@@ -141,6 +234,7 @@ void display_init(struct Field *field, int iterations)
 	for (int y = 1; field->height + 1 > y; y++) {
 		display[y][0] = line_vertical;
 		display[y][display_x + 1] = line_vertical;
+		display[y][display_x + 2] = '\0';
 
 		for (int x = 1; field->width + 1 > x; x++) {
 			display[y][x] = get_char(field, x - 1, y - 1);

@@ -96,17 +96,17 @@ int main(int argc, char *argv[])
 
 
 	display_init(&field, iterations);
-	int updated_tile;
-	for (int i = 1; iterations >= i; i++) {
-		updated_tile = field.ant.y * field.width + field.ant.x;
-		field_step(&field);
-		display_update(&field, updated_tile);
+	int updated_tile = field.ant.y * field.width + field.ant.x;
+	for (int i = 0; iterations >= i; i++) {
 		if (strlen(file_out)) {
 			display_save(&field, i, file_out);
 			
 		} else {
 			display_print(&field, i);
 		}
+		updated_tile = field.ant.y * field.width + field.ant.x;
+		field_step(&field);
+		display_update(&field, updated_tile);
 	}
 
 	display_free();
