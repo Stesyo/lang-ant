@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include <wchar.h>
 #include <locale.h>
+#include <wchar.h>
 #include <sys/stat.h>
 
 #include "field.h"
@@ -214,27 +214,27 @@ void display_init(struct Field *field, int iterations)
 	setlocale(LC_ALL, "C.UTF-8");
 
 	iter_digits = get_digits(iterations);
-	display_x = field->width;
-	display_y = field->height;
-	display = malloc((display_y + 2) * sizeof(wchar_t *));
-	for (int i = 0 ; display_y + 2 > i; i++) {
-		display[i] = malloc((display_x + 2) * sizeof(wchar_t));
+	display_x = field->width + 2;
+	display_y = field->height + 2;
+	display = malloc(display_y * sizeof(wchar_t *));
+	for (int i = 0 ; display_y > i; i++) {
+		display[i] = malloc((display_x + 1) * sizeof(wchar_t));
 	}
 
 	display[0][0] = line_down_right;
-	display[0][display_x + 1] = line_down_left;
-	display[display_y + 1][0] = line_up_right;
-	display[display_y + 1][display_x + 1] = line_up_left;
+	display[0][display_x - 1] = line_down_left;
+	display[display_y - 1][0] = line_up_right;
+	display[display_y - 1][display_x - 1] = line_up_left;
 
-	for(int i = 0; display_x > i; i++) {
-		display[0][i + 1] = line_horizontal;
-		display[display_y + 1][i + 1] = line_horizontal;
+	for(int i = 0; field->width > i; i++) {
+		display[0][1 + i] = line_horizontal;
+		display[display_y - 1][1 + i] = line_horizontal;
 	}
 
 	for (int y = 1; field->height + 1 > y; y++) {
 		display[y][0] = line_vertical;
-		display[y][display_x + 1] = line_vertical;
-		display[y][display_x + 2] = '\0';
+		display[y][display_x - 1] = line_vertical;
+		display[y][display_x] = L'\0';
 
 		for (int x = 1; field->width + 1 > x; x++) {
 			display[y][x] = get_char(field, x - 1, y - 1);
