@@ -54,7 +54,7 @@ void field_step(struct Field *field)
 	switch (field->ant.rotation) {
 		case 1:// N
 			if (!y) {
-				y = field->width;
+				y = field->height;
 			}
 			y -= 1;
 			break;
