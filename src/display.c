@@ -226,6 +226,8 @@ void display_init(struct Field *field, int iterations)
 	display[display_y - 1][0] = line_up_right;
 	display[display_y - 1][display_x - 1] = line_up_left;
 
+	display[0][display_x] = L'\0';
+	display[display_y - 1][display_x] = L'\0';
 	for(int i = 0; field->width > i; i++) {
 		display[0][1 + i] = line_horizontal;
 		display[display_y - 1][1 + i] = line_horizontal;
